@@ -21,12 +21,12 @@ repository               : "nabrown8/nabrown8.github.io"
 #               Additional customization can be done by editing /_includes/author-profile.html
 author:
   # Biographic information
-  avatar           : "profile.png"
+  avatar           : "profile.jpg"
   name             : "Noah A. Brown"
   pronouns         : "he/him"  
-  bio              : "Short biography for the left-hand sidebar"
+  bio              : "MS Candidate (2025)"
   location         : "Chapel Hill, NC"
-  employer         : "University of North Carolina\nat Chapel Hill"
+  employer         : "UNC Chapel Hill"
   uri              : # URL
   email            : "noahbrow@cs.unc.edu" 
 
