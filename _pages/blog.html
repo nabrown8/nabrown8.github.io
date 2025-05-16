@@ -1,0 +1,15 @@
+---
+layout: archive
+title: "Blog Posts"
+permalink: /blog/
+author_profile: true
+published: true
+---
+
+{% if site.talkmap_link == true %}
+
+{% endif %}
+
+{% for post in site.blog reversed %}
+  {% include archive-single-talk.html %}
+{% endfor %}
