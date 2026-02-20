@@ -17,3 +17,7 @@ I have one cat named Lexie. Obligatory cat photo included, of course.
 
 ![A dilute tortoiseshell cat hanging off a man's shoulder.](../images/lexie.jpg){: height="400"}
 
+### Service
+
+[IEEE 2026 Symposium on Security and Privacy](https://sp2026.ieee-security.org/) - Artifact Evaluation Committee
+
