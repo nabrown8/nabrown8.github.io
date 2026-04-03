@@ -301,6 +301,7 @@ plugins:
   - jekyll-feed
   - jekyll-gist
   - jekyll-paginate
+  - jekyll-scholar
   - jekyll-sitemap
   - jemoji
 
@@ -348,3 +349,7 @@ compress_html:
   clippings: all
   ignore:
     envs: development
+
+scholar:
+  style: ieee
+  bibliography: papers.bib
