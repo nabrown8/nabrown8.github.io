@@ -21,3 +21,7 @@ I have one cat named Lexie. Obligatory cat photo included, of course.
 
 [IEEE 2026 Symposium on Security and Privacy](https://sp2026.ieee-security.org/) - Artifact Evaluation Committee
 
+#### Analytics Disclaimer
+
+I use [Google Analytics](https://policies.google.com/technologies/partner-sites?client_theme=dark) to see where/when my page gets more traffic; I don't intend to sell or otherwise share this data.
+
