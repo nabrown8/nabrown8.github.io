@@ -1,0 +1,160 @@
+module CiteProc
+  module Ruby
+
+    class Renderer
+
+      attr_reader :state
+
+      attr_accessor :engine
+
+      def initialize(options_or_engine = nil)
+        @state = State.new
+
+        case options_or_engine
+        when Engine
+          @engine = options_or_engine
+        when Hash
+          locale, format = options_or_engine.values_at(:locale, :format)
+          @locale = locale.is_a?(CSL::Locale) ? locale : CSL::Locale.load(locale)
+          @format = Format.load(format)
+        end
+      end
+
+      def abbreviate(*arguments)
+        return unless engine
+        engine.abbreviate(*arguments)
+      end
+      alias abbrev abbreviate
+
+      # Clears the renderer's caches. Call this after changing styles or
+      # locales in place, or to free memory when using many different styles.
+      #
+      # @return [self]
+      def clear_cache!
+        clear_locale_cache!
+        self
+      end
+
+      def allow_locale_overrides?
+        return false unless engine
+        engine.options[:allow_locale_overrides]
+      end
+
+      # @param item [CiteProc::CitationItem]
+      # @param node [CSL::Node]
+      # @return [String] the rendered and formatted string
+      def render(item, node)
+        raise ArgumentError, "no CSL node: #{node.inspect}" unless
+          node.respond_to?(:nodename)
+
+        specialize = "render_#{node.nodename.tr('-', '_')}"
+
+        raise ArgumentError, "#{specialize} not implemented" unless
+          respond_to?(specialize, true)
+
+        format! send(specialize, item, node), node
+      end
+
+      # @param data [CiteProc::CitationData]
+      # @param node [CSL::Style::Citation]
+      # @return [String] the rendered and formatted string
+      def render_citation(data, node)
+        state.store! data, node
+
+        citations = join data.map { |item|
+          render_single_citation item, node.layout
+        }, node.layout.delimiter || ''
+
+        result = format! citations, node.layout
+      ensure
+        state.clear! result
+      end
+
+      # @param data [CiteProc::CitationItem]
+      # @param node [CSL::Style::Layout]
+      # @return [String] the rendered and string
+      def render_single_citation(item, node)
+        state.language = language_of(item.data)
+
+        # TODO author_only
+        item.suppress! 'author' if item.suppress_author?
+
+        join [item.prefix, render_layout(item, node), item.suffix].compact
+      ensure
+        state.language = nil
+      end
+
+      # @param item [CiteProc::CitationItem]
+      # @param node [CSL::Style::Bibliography]
+      # @return [String] the rendered and formatted string
+      def render_bibliography(item, node)
+        state.store! item, node
+        state.language = language_of(item.data)
+
+        language = item.language.to_s
+
+        if allow_locale_overrides? && !language.empty?
+          begin
+            item_locale = locale_for(language)
+
+            if item_locale != base_locale
+              original_locale, @locale = @locale, item_locale
+            end
+          rescue ParseError
+            # locale not found
+          end
+        end
+
+        fields = node.layout.each_child.map { |child|
+          render item, child
+        }.reject(&:empty?)
+
+        # With second-field-align, the first field is rendered
+        # in the left margin and the other fields inline
+        # (without trailing whitespace)
+        if node.second_field_align? && fields.length > 1
+          fields = [
+            format!(fields[0], CSL::Style::Group.new(:display => 'left-margin')),
+            format!(join(fields[1..]).rstrip, CSL::Style::Group.new(:display => 'right-inline'))
+          ]
+        end
+
+        result = format! join(fields), node.layout
+
+      ensure
+        unless original_locale.nil?
+          @locale = original_locale
+        end
+
+        state.clear! result
+      end
+
+      def render_sort(item, node, key)
+        state.store! nil, key
+        state.language = language_of(item)
+
+        original_format = @format
+        @format = Formats::Sort.new
+
+        if item.is_a?(CiteProc::Names)
+          render_name(item, node)
+
+        else
+          # We need to clear any items that are suppressed
+          # because they were used as substitutes during
+          # rendering for sorting purposes!
+          rendered = render item.cite, node
+          item.suppressed.clear
+
+          rendered
+        end
+
+      ensure
+        @format = original_format
+        state.clear!
+      end
+
+    end
+
+  end
+end

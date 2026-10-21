@@ -1,0 +1,26 @@
+body {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+h1 {
+    border-bottom: 2px solid #13294B;
+    padding-bottom: 10px;
+}
+
+p {
+    font-size: 16px;
+}
+
+.disclaimer {
+    color: #dd0000;
+}
+
+code {
+    font-family: monospace;
+    font-size: 16px;
+    background-color: #eeeeee;
+}
